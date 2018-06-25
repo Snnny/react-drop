@@ -23,20 +23,39 @@ class Container extends Component {
             ]
         }
     }
-    changeCard=(index, newBoxId)=> {
+    changeCard =(index, newBoxId, newIndex)=> {
+        console.log('moving', index, newBoxId, newIndex,)
+        console.log("this", this.state)
         const dragCard = this.state.cards[index]
         if (!dragCard){ return }
 
-        dragCard.boxId = newBoxId
+        if (newBoxId && dragCard.boxId != newBoxId) {
+            dragCard.boxId = newBoxId
 
-        this.setState(update(this.state, {
-            cards: {
-                $splice: [
-                    [index, 1],
-                    [index, 0, dragCard]
-                ]
-            }
-        }));
+            this.setState(update(this.state, {
+                cards: {
+                    $splice: [
+                        [index, 1],
+                        [index, 0, dragCard]
+                    ]
+                }
+            }));
+        } else if (newIndex && index != newIndex) {
+            // newIndex 当卡片拖动到某个卡片的上面时，
+            // newIndex 就是此某个卡片的 index
+            // 将拖动的卡片 剪切到 此位置上
+            //
+            // dragCard.index ~= newIndex
+            console.log("hover", newIndex, index)
+            this.setState(update(this.state, {
+                cards: {
+                    $splice: [
+                        [index, 1],
+                        [newIndex, 0, dragCard]
+                    ]
+                }
+            }))
+        }
     }
     render() {
         return (
@@ -51,6 +70,7 @@ class Container extends Component {
                     if (box.boxId==card.boxId)
                     return (
                         <Card
+                    changeCard={this.changeCard}
                     key={'c-'+card.id}
                     id={card.id}
                     index={index}
